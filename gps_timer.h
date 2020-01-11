@@ -90,11 +90,11 @@ uint16_t startHeading;
 // Coordinates of current & previous GPS location.
 line_t track;
 
-static const char* description[] = { "NO ERROR", "INVALID SENTENCE", "CRC FAILURE", "NO FIX" "NON SEQUENTIAL TIME STAMP", "END OF FILE" };
+static const char* description[] = { "NO ERROR", "INVALID SENTENCE", "CHECKSUM FAILURE", "NO FIX" "NON-SEQUENTIAL SENTENCE", "END OF FILE" };
 
 struct err
 {
-	enum ID : size_t { NONE = 0, CRC, BAD_SENTENCE, NO_FIX, TIME_STAMP, FILE_EOF };
+	enum ID : size_t { NONE = 0, CHECKSUM, BAD_SENTENCE, NO_FIX, TIME_STAMP, FILE_EOF };
 
 	void Clear() { error_ = ID::NONE; }
 	void SetError(ID id) { error_ = id; }
