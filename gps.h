@@ -68,7 +68,7 @@ bool GetRMCSentence(PORT port, char* tokens[])
 		// Confirm crc.
 		if (!Checksum(buffer))
 		{
-			error.SetError(err::ID::CRC);
+			error.SetError(err::ID::CHECKSUM);
 			return false;
 		}
 
