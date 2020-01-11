@@ -104,7 +104,7 @@ struct err
 
 private:
 	ID error_;
-	//static constexpr const char* description[] = { "NO ERROR", "INVALID SENTENCE", "CRC FAILURE", "NO FIX" "NON SEQUENTIAL TIME STAMP", "END OF FILE" };
+	//static constexpr const char* description[] = { "NO ERROR", "INVALID SENTENCE", "CHECKSUM FAILURE", "NO FIX" "NON-SEQUENTIAL SENTENCE, "END OF FILE" };
 };
 
 // Gps errors.
