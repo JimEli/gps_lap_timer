@@ -32,9 +32,22 @@
 #include "strtok.h"
 #include "htoi.h"
 #include "pair.h"
+#include <conio.h>
 
 // Visual Leak Detector.
 #include "C:\Program Files (x86)\Visual Leak Detector\include\vld.h"
+
+// Non-blocking getchar.
+bool GetKeyboardHit()
+{
+	if (_kbhit())
+	{
+		_getch();
+		return true;
+	}
+	else
+		return false;
+}
 
 // Prepends t into s. Assumes s has enough space allocated for the combined string.
 void Prepend(char* d, const char* s)
@@ -255,7 +268,7 @@ int main(void)
 	{
 		if (GetRMCSentence(port, gpsTokens))
 		{
-			if (getchar())
+			if (GetKeyboardHit())
 			{
 				float ts = EstablishStartLine(gpsTokens);
 				if (ts != 0.0)
