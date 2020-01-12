@@ -1,6 +1,6 @@
 #include "serial_port.h"
 
-PORT OpenPort(int portNumber)
+PORT OpenPort(unsigned portNumber)
 {
 	HANDLE hComm;
 	TCHAR comname[100];
@@ -144,7 +144,6 @@ int GetPortParity(PORT comPort)
 
 int SendData(PORT comPort, unsigned char* data, size_t size)
 {
-	//DWORD  dNoOFBytestoWrite = strlen(data);
 	DWORD  dNoOFBytestoWrite = size;
 	DWORD  dNoOfBytesWritten;
 	
