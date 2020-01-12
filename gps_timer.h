@@ -52,22 +52,22 @@ char buffer[GPS_STRING_LENGTH];
 
 struct lap
 {
-	void setStart(float ts) 
+	void setStart(const float ts) 
 	{
 		assert(ts >= 0.);
 		start = ts;
 	}
 
-	void setStop(float ts) 
+	void setStop(const float ts) 
 	{ 
 		assert(ts >= 0.);
 		stop = ts; 
 	}
 	
-	float getStart() { return start; }
-	float getStop() { return stop; }
+	float getStart() const { return start; }
+	float getStop() const { return stop; }
 	
-	float getTime()
+	float getTime() const 
 	{
 		assert(stop >= start);
 		return (stop - start);
@@ -97,9 +97,9 @@ struct err
 	enum ID : size_t { NONE = 0, CHECKSUM, BAD_SENTENCE, NO_FIX, TIME_STAMP, FILE_EOF };
 
 	void Clear() { error_ = ID::NONE; }
-	void SetError(ID id) { error_ = id; }
-	ID GetError() { return error_; }
-	const char* GetDescription() { return description[error_]; }
+	void SetError(const ID id) { error_ = id; }
+	ID GetError() const { return error_; }
+	const char* GetDescription() const { return description[error_]; }
 	//const char* GetDescription() { return static_cast<const char*>(description[error_]); }
 
 private:
