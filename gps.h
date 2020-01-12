@@ -75,7 +75,7 @@ bool GetRMCSentence(PORT port, char* tokens[])
 		// Parse the gps rmc string and check for valid fix.
 		if (ParseRMC(buffer, tokens) == RMC_CHECKSUM)
 		{
-			if (tokens[RMC_STATUS] != nullptr && *tokens[RMC_STATUS] != 'A')
+			if (tokens[RMC_STATUS] == nullptr || *tokens[RMC_STATUS] != 'A')
 			{
 				error.SetError(err::ID::NO_FIX);
 				return false;
