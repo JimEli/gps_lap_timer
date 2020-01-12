@@ -20,12 +20,11 @@ char hex(char ch)
 template<typename T>
 T htoi(char* hexStr)
 {
-	assert(hexStr != nullptr);
+	T value = T{ 0 };
 
-	T value = 0;
-
-	for (size_t i = 0; i < sizeof(T) * 2; ++i)
-		value |= hex(tolower(hexStr[i])) << (8 * sizeof(T) - 4 * (i + 1));
+	if (hexStr != nullptr)
+		for (size_t i = 0; i < sizeof(T) * 2; ++i)
+			value |= hex(tolower(hexStr[i])) << (8 * sizeof(T) - 4 * (i + 1));
 
 	return value;
 };
