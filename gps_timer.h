@@ -1,6 +1,6 @@
-// predictive lap timer header file.
-#ifndef _PREDICTIVE_LAP_TIMER_H_
-#define _PREDICTIVE_LAP_TIMER_H_
+// Lap timer header file.
+#ifndef _LAP_TIMER_H_
+#define _LAP_TIMER_H_
 
 // msvc
 #define float double
