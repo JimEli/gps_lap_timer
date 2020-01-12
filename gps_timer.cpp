@@ -14,9 +14,6 @@
 *   01/11/2019: Initial release. JME
 *************************************************************************/
 
-// $GPRMC,123456.400,A,4559.4120,N,12269.1400,W,086.93,290.66,091208,,,S*xx // data file.
-// $GPRMC,220131.60,A,3203.55750,N,11041.03710,W,0.078,,030120,,,A*68       // gps live data.
-
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <cstdio>
@@ -51,7 +48,7 @@ void Prepend(char* d, const char* s)
 }
 
 // Convert float seconds to MM::SS.SS format.
-void DisplayTime(uint8_t n, float ft) 
+void DisplayTime(const uint8_t n, const float ft) 
 {
 	char s1[16];
 
@@ -111,7 +108,7 @@ float EstablishStartLine(char *tokens[])
 	return ts;
 }
 
-void Run(PORT port, float timeStamp, char *tokens[])
+void Run(const PORT port, float timeStamp, char *tokens[])
 {
 	// Lap counters.
 	uint8_t numLaps = 0;
