@@ -9,7 +9,7 @@ bool Equal(float a, float b) { return fabs(a - b) <= FLT_EPSILON; }
 // Check heading and angle within 30 degrees.
 bool Within30(uint16_t a, uint16_t h) { return ((360 - abs(a - h) % 360 < 30) || (abs(a - h) % 360 < 30)); }
 
-float Distance(point_t t1, point_t t2)
+float Distance(const point_t t1, const point_t t2)
 {
 	float Lat1, Long1, Lat2, Long2;		// Coordinates in degrees.
 	float dlat, dlon;					// Change in location.
@@ -44,7 +44,7 @@ float Distance(point_t t1, point_t t2)
 }
 
 // Construct a startline.
-void StartLine(float sx, float sy, float shdg)
+void StartLine(const float sx, const float sy, const float shdg)
 {
 	float tx, ty; // Projected track coordinates.
 	float m, b;   // Slope & y intercept.
@@ -70,7 +70,7 @@ void StartLine(float sx, float sy, float shdg)
 }
 
 // 2d line intersection.
-bool LineIntersection(line_t track)
+bool LineIntersection(const line_t track)
 {
 	float z;
 	int16_t s1, s2, s3, s4;
