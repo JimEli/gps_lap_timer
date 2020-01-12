@@ -149,11 +149,17 @@ void Run(PORT port, float timeStamp, char *tokens[])
 		}
 
 		// Get current track position (lat, long).
-		char temp[12];
-		GeoCopy(tokens[RMC_LATITUDE], temp, LATITUDE);
-		track.p1.x = atof(temp);
-		GeoCopy(tokens[RMC_LONGITUDE], temp, LONGITUDE);
-		track.p1.y = atof(temp);
+		if (tokens[RMC_LATITUDE] != nullptr || tokens[RMC_LONGITUDE] != nullptr)
+		{
+			char temp[12];
+      
+			GeoCopy(tokens[RMC_LATITUDE], temp, LATITUDE);
+			track.p1.x = atof(temp);
+			GeoCopy(tokens[RMC_LONGITUDE], temp, LONGITUDE);
+			track.p1.y = atof(temp);
+		}
+		else
+			continue;
 
 		// Ignore gps sentences for 1 second after crossing start/finish.
 		if (hzCounter < GPS_UPDATE_FREQUENCY)
