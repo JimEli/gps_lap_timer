@@ -90,7 +90,7 @@ uint16_t startHeading;
 // Coordinates of current & previous GPS location.
 line_t track;
 
-static const char* description[] = { "NO ERROR", "INVALID SENTENCE", "CHECKSUM FAILURE", "NO FIX" "NON-SEQUENTIAL SENTENCE", "END OF FILE" };
+static const char* description[] = { "NO ERROR", "CHECKSUM FAILURE", "INVALID SENTENCE", "NO FIX", "NON-SEQUENTIAL SENTENCE", "END OF FILE" };
 
 struct err
 {
