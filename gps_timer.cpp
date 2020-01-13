@@ -234,7 +234,7 @@ int main(void)
 		exit(-1);
 	}
 
-	//SetPortBaudRate(port, CP_BAUD_RATE_19200);
+	//SetPortBaudRate(port, CBR_19200);
 
 	// Setup gps for proper sentence and refresh rate.
 	gpsSetup(port);
