@@ -253,8 +253,11 @@ int main(void)
 	{
 		if (GetRMCSentence(port, gpsTokens))
 		{
-			// Non-blocking getchar.
-			if (_kbhit())
+#ifdef FILE_INPUT
+			if (getchar())
+#else
+			if (_kbhit()) // Non-blocking getchar.
+#endif
 			{
 				float ts = EstablishStartLine(gpsTokens);
 				if (ts != 0.0)
