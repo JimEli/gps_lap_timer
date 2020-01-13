@@ -4,8 +4,8 @@
 * Author: James Eli
 * Date: 1/11/2019
 *
-* Program parses an RMC sentence from a gps connected to the com port 
-* to time consequetive laps.
+* Program parses an RMC sentence from a gps connected to a usb port to time 
+* consequetive laps.
 *
 * Notes:
 *  (1) Compiled with MS Visual Studio 2017 Community (v141).
@@ -253,11 +253,13 @@ int main(void)
 	{
 		if (GetRMCSentence(port, gpsTokens))
 		{
+
 #ifdef FILE_INPUT
 			if (getchar())
 #else
-			if (_kbhit()) // Non-blocking getchar.
+			if (_kbhit()) // Non-blocking.
 #endif
+
 			{
 				float ts = EstablishStartLine(gpsTokens);
 				if (ts != 0.0)
