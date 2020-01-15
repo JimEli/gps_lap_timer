@@ -8,7 +8,7 @@
 #define MIN(x, y)                     (((x) < (y)) ? (x) : (y))
 #define MAX(x, y)                     (((x) > (y)) ? (x) : (y))
 #define DEGTORAD(deg)                 (deg*57.29577995f)
-#define D_TO_RADIANS                  (PI/180.0)
+#define D_TO_RADIANS                  (PI/180.0f)
 
 // gps rmc sentence fields.
 #define RMC_PREFIX                    0
@@ -34,7 +34,7 @@ const std::size_t GPS_STRING_LENGTH = 96;
 
 // Gps update frequency and period.
 const std::size_t GPS_UPDATE_FREQUENCY = 5; // Hz.
-static constexpr float GPS_UPDATE_PERIOD{ 1./GPS_UPDATE_FREQUENCY };
+static constexpr float GPS_UPDATE_PERIOD{ 1.0f/GPS_UPDATE_FREQUENCY };
 
 // Distance calculations.
 static constexpr float PI{ 3.141592654 };
@@ -50,17 +50,18 @@ constexpr int COM_PORT{ 5 };
 // Serial/file input buffer.
 char buffer[GPS_STRING_LENGTH];
 
+// Lap time class.
 struct lap
 {
 	void setStart(const float ts) 
 	{
-		assert(ts >= 0.);
+		assert(ts >= 0.0f);
 		start = toSeconds(ts);
 	}
 
 	void setStop(const float ts) 
 	{ 
-		assert(ts >= 0.);
+		assert(ts >= 0.0f);
 		stop = toSeconds(ts);
 	}
 	
@@ -70,7 +71,8 @@ struct lap
 	float getTime() const 
 	{
 		if (stop < start)
-			return 0.;
+			return 0.0f;
+		
 		return (stop - start);
 	}
 
