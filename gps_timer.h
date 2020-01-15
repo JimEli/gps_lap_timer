@@ -55,28 +55,50 @@ struct lap
 	void setStart(const float ts) 
 	{
 		assert(ts >= 0.);
-		start = ts;
+		start = toSeconds(ts);
 	}
 
 	void setStop(const float ts) 
 	{ 
 		assert(ts >= 0.);
-		stop = ts; 
+		stop = toSeconds(ts);
 	}
 	
-	float getStart() const { return start; }
-	float getStop() const { return stop; }
+	float getStart() const { return toTimeStamp(start); }
+	float getStop() const { return toTimeStamp(stop); }
 	
 	float getTime() const 
 	{
-		assert(stop >= start);
+		if (stop < start)
+			return 0.;
 		return (stop - start);
 	}
 
 private:
+	static float toSeconds(float t)
+	{
+		int hm = t / 100;
+		int h = t / 10000;
+		int m = hm - (h * 100) + (h * 60);
+		float s = t - (hm * 100) + (m * 60);
+
+		return s;
+	}
+
+	static float toTimeStamp(float s)
+	{
+		int h = s / 3600;
+		int m = s / 60 - (h * 60);
+		float fs = s - (int)(s / 100) * 100;
+		float ts = (((h * 100) + m) * 100) + fs;
+		
+		return ts;
+	}
+
 	float start;
 	float stop;
 };
+
 
 struct point_t { float x, y; };
 struct line_t { point_t p0, p1; };
