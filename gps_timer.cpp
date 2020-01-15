@@ -48,7 +48,7 @@ void Prepend(char* d, const char* s)
 // Convert float seconds to MM::SS.SS format.
 void DisplayTime(const uint8_t n, const float ft) 
 {
-	assert(ft > 0.);
+	assert(ft > 0.0f);
 	assert(n >= 0);
 
 	char s1[16];
@@ -88,6 +88,10 @@ float EstablishStartLine(char *tokens[])
 
 #else
 
+
+	if (tokens[RMC_TIME] == nullptr || tokens[RMC_TRACK] == nullptr || tokens[RMC_LATITUDE] == nullptr || tokens[RMC_LONGITUDE] == nullptr)
+		return 0.0f;
+
 	// Position timestamp.
 	ts = atof(tokens[RMC_TIME]);
 
@@ -118,7 +122,7 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 	// Lap data.
 	array<lap, 256> lapData;
 	// Best lap time (lap #, time).
-	pair<uint8_t, float> bestTime(0, 0.);
+	pair<uint8_t, float> bestTime(0, 0.0f);
 
 	// Note timestamp of startline point.
 	lapData[numLaps].setStart(timeStamp);
@@ -140,7 +144,7 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 		float prevTimeStamp = timeStamp;
 		// Confirm sentence is sequential.
 		timeStamp = atof(tokens[RMC_TIME]);
-		if (!Equal(timeStamp, prevTimeStamp + GPS_UPDATE_PERIOD) && !Equal(timeStamp, prevTimeStamp + 40. + GPS_UPDATE_PERIOD))
+		if (!Equal(timeStamp, prevTimeStamp + GPS_UPDATE_PERIOD) && !Equal(timeStamp, prevTimeStamp + 40.0f + GPS_UPDATE_PERIOD))
 		{
 			error.SetError(err::ID::TIME_STAMP);
 			std::cout << error.GetDescription() << std::endl;
@@ -266,7 +270,7 @@ int main(void)
 
 			{
 				float ts = EstablishStartLine(gpsTokens);
-				if (ts != 0.0)
+				if (ts != 0.0f)
 				{
 					Run(port, ts, gpsTokens);
 					break;
