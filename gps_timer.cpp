@@ -48,13 +48,16 @@ void Prepend(char* d, const char* s)
 // Convert float seconds to MM::SS.SS format.
 void DisplayTime(const uint8_t n, const float ft) 
 {
+	assert(ft > 0.);
+	assert(n >= 0);
+
 	char s1[16];
 
 	memset(s1, 0, 16);
 	uint16_t m = (uint16_t)ft / 60;
 	float fs = ft - (m * 60);
-	uint8_t s = (uint8_t)fs;
-	sprintf(s1, "%.02d:%.02d.%.02d ", m, s, (uint8_t)((fs - s) * 60));
+	sprintf(s1, "%.02d:%05.2f ", m, fs);
+
 	// Prepend lap number.
 	if (n)
 	{
@@ -63,6 +66,7 @@ void DisplayTime(const uint8_t n, const float ft)
 		sprintf(s2, "%d: ", n);
 		Prepend(s1, s2);
 	}
+
 	std::cout << s1;
 }
 
