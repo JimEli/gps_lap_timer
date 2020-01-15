@@ -16,27 +16,27 @@ float Distance(const point_t t1, const point_t t2)
 	float a, d;
 	float c;							// Great Circle distance (radians).
 
-	Lat1 = (float)((uint32_t)(t1.y / 100.0));
-	Lat1 = (float)(Lat1 + (t1.y - Lat1 * 100) / 60.0);
+	Lat1 = (float)((uint32_t)(t1.y / 100.0f));
+	Lat1 = (float)(Lat1 + (t1.y - Lat1 * 100) / 60.0f);
 	Lat1 = (float)(Lat1 * D_TO_RADIANS);
 
-	Long1 = (float)((uint32_t)(t1.x / 100.0));
-	Long1 = (float)(Long1 + (t1.x - Long1 * 100) / 60.0);
+	Long1 = (float)((uint32_t)(t1.x / 100.0f));
+	Long1 = (float)(Long1 + (t1.x - Long1 * 100) / 60.0f);
 	Long1 = (float)(Long1 * D_TO_RADIANS);
 
-	Lat2 = (float)((uint32_t)(t2.y / 100.0));
-	Lat2 = (float)(Lat2 + (t2.y - Lat2 * 100) / 60.0);
+	Lat2 = (float)((uint32_t)(t2.y / 100.0f));
+	Lat2 = (float)(Lat2 + (t2.y - Lat2 * 100) / 60.0f);
 	Lat2 = (float)(Lat2 * D_TO_RADIANS);
 
-	Long2 = (float)((uint32_t)(t2.x / 100.0));
-	Long2 = (float)(Long2 + (t2.x - Long2 * 100) / 60.0);
+	Long2 = (float)((uint32_t)(t2.x / 100.0f));
+	Long2 = (float)(Long2 + (t2.x - Long2 * 100) / 60.0f);
 	Long2 = (float)(Long2 * D_TO_RADIANS);
 
 	dlat = Lat2 - Lat1;
 	dlon = Long2 - Long1;
 
-	a = (float)((sin(dlat / 2) * sin(dlat / 2)) + cos(Lat1) * cos(Lat2) * (sin(dlon / 2) * sin(dlon / 2)));
-	c = (float)(2 * atan2(sqrt(a), sqrt(1 - a)));
+	a = (float)((sin(dlat / 2.0f) * sin(dlat / 2.0f)) + cos(Lat1) * cos(Lat2) * (sin(dlon / 2.0f) * sin(dlon / 2.0f)));
+	c = (float)(2.0f * atan2(sqrt(a), sqrt(1.0f - a)));
 
 	d = (float)(EARTH_RADIUS * c);
 
@@ -57,7 +57,7 @@ void StartLine(const float sx, const float sy, const float shdg)
 	b = sy - (m * sx);
 
 	// Construct perpendicular (startline) slope & y-intercept.
-	m = -1.0 / m;
+	m = -1.0f / m;
 	b = sy - (m * sx);
 
 	// Define endpoints of the perpendicular.
@@ -83,30 +83,30 @@ bool LineIntersection(const line_t track)
 		return false;
 
 	// Straddle tests.
-	if ((z = ((track.p0.x - startingLine.p0.x) * (startingLine.p1.y - startingLine.p0.y)) - ((track.p0.y - startingLine.p0.y) * (startingLine.p1.x - startingLine.p0.x))) < 0)
+	if ((z = ((track.p0.x - startingLine.p0.x) * (startingLine.p1.y - startingLine.p0.y)) - ((track.p0.y - startingLine.p0.y) * (startingLine.p1.x - startingLine.p0.x))) < 0.0f)
 		s1 = -1; // Counterclockwise. 
-	else if (z > 0)
+	else if (z > 0.0f)
 		s1 = 1;  // Clockwise.
 	else
 		s1 = 0;  // Collinear.
 
-	if ((z = ((track.p1.x - startingLine.p0.x) * (startingLine.p1.y - startingLine.p0.y)) - ((track.p1.y - startingLine.p0.y) * (startingLine.p1.x - startingLine.p0.x))) < 0)
+	if ((z = ((track.p1.x - startingLine.p0.x) * (startingLine.p1.y - startingLine.p0.y)) - ((track.p1.y - startingLine.p0.y) * (startingLine.p1.x - startingLine.p0.x))) < 0.0f)
 		s2 = -1;
-	else if (z > 0)
+	else if (z > 0.0f)
 		s2 = 1;
 	else
 		s2 = 0;
 
-	if ((z = ((startingLine.p0.x - track.p0.x) * (track.p1.y - track.p0.y)) - ((startingLine.p0.y - track.p0.y) * (track.p1.x - track.p0.x))) < 0)
+	if ((z = ((startingLine.p0.x - track.p0.x) * (track.p1.y - track.p0.y)) - ((startingLine.p0.y - track.p0.y) * (track.p1.x - track.p0.x))) < 0.0f)
 		s3 = -1;
-	else if (z > 0)
+	else if (z > 0.0f)
 		s3 = 1;
 	else
 		s3 = 0;
 
-	if ((z = ((startingLine.p1.x - track.p0.x) * (track.p1.y - track.p0.y)) - ((startingLine.p1.y - track.p0.y) * (track.p1.x - track.p0.x))) < 0)
+	if ((z = ((startingLine.p1.x - track.p0.x) * (track.p1.y - track.p0.y)) - ((startingLine.p1.y - track.p0.y) * (track.p1.x - track.p0.x))) < 0.0f)
 		s4 = -1;
-	else if (z > 0)
+	else if (z > 0.0f)
 		s4 = 1;
 	else
 		s4 = 0;
