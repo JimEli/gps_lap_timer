@@ -5,7 +5,13 @@
 * Date: 1/11/2019
 *
 * Program parses an RMC sentence from a gps connected to a usb port to time 
-* consequetive laps.
+* consequetive laps. The extracts time, location and fix information from the 
+* NMEA RMC sentence. When initiated the program waits in a loop until the GPS 
+* acquires a valid fix. Then simply establish a start/finish line by pressing
+* a key. Subsequent passing of the start/finish line will display a time for 
+* each lap. A basic data file of several laps is available for testing 
+* purposes (FILE_INPUT). The final version of this program is intended to run 
+* on an Arduino based uC device.
 *
 * Notes:
 *  (1) Compiled with MS Visual Studio 2017 Community (v141).
@@ -23,19 +29,15 @@
 #include <cstdint>
 #include <cassert>
 #include <math.h>
-#include "array.h"
-#include "serial_port.h"
-#include "gps_timer.h"
-#include "gps.h"
-#include "utility.h"
-#include "array.h"
-#include "strtok.h"
-#include "htoi.h"
-#include "pair.h"
-#include <conio.h>
+#include <array>
+#include "serial_port.h" // com port routines.
+#include "gps_timer.h"   // our header.
+#include "utility.h"     // utility functions.
+#include "gps.h"         // gps specific functions.
+#include <conio.h>       // _kbhit, _getchar.
 
-// Prepends t into s. Assumes s has enough space allocated for the combined string.
-void Prepend(char* d, const char* s)
+// Prepends s onto d. Assumes s\d has enough space allocated for the combined string.
+static void Prepend(char* d, const char* s)
 {
 	assert(s != nullptr && d != nullptr);
 	
@@ -46,9 +48,9 @@ void Prepend(char* d, const char* s)
 }
 
 // Convert float seconds to MM::SS.SS format.
-void DisplayTime(const uint8_t n, const float ft) 
+static void DisplayTime(const uint8_t n, const float ft) 
 {
-	assert(ft > 0.0f);
+	assert(ft > 0.);
 	assert(n >= 0);
 
 	char s1[16];
@@ -70,42 +72,41 @@ void DisplayTime(const uint8_t n, const float ft)
 	std::cout << s1;
 }
 
-float EstablishStartLine(char *tokens[])
+static float EstablishStartLine(char *tokens[])
 {
 	float ts;
 
 #ifdef FILE_INPUT
-
-	// Simulate setting startline.
-	startPoint.x = 45.594120;
-	startPoint.y = 122.69140;
-
+	// Safeway parking lot: $GPRMC,194924.80,A,3203.02116,N,11042.41425,W,1.304,30.95,120120,,,A*48
+	startPoint.x = 32.0302116;
+	startPoint.y = 110.4241425;
 	// Heading while crossing start/finish.
-	startHeading = 290;
-
+	startHeading = 31;
 	// Position timestamp.
-	ts = 123456.400;
+	char t[] = "194924.80";
+	ts = ConvertToSeconds(t);
 
 #else
 
-
-	if (tokens[RMC_TIME] == nullptr || tokens[RMC_TRACK] == nullptr || tokens[RMC_LATITUDE] == nullptr || tokens[RMC_LONGITUDE] == nullptr)
+	if (tokens[RMC_TIME] == nullptr || tokens[RMC_TRACK] == nullptr ||
+		tokens[RMC_LATITUDE] == nullptr || tokens[RMC_LONGITUDE] == nullptr)
 		return 0.0f;
 
 	// Position timestamp.
-	ts = atof(tokens[RMC_TIME]);
+	ts = ConvertToSeconds(tokens[RMC_TIME]);
 
 	// Get current track position (lat, long).
 	char temp[12];
 	GeoCopy(tokens[RMC_LATITUDE], temp, LATITUDE);
-	startPoint.x = atof(temp);
+	startPoint.x = atof_(temp);
 	GeoCopy(tokens[RMC_LONGITUDE], temp, LONGITUDE);
-	startPoint.y = atof(temp);
+	startPoint.y = atof_(temp);
 
 	// Heading while crossing start/finish.
 	startHeading = atoi(tokens[RMC_TRACK]);
 
 #endif
+
 	// Define startline.
 	StartLine((float)startPoint.x, (float)startPoint.y, (float)startHeading);
 	track.p0.x = startPoint.x;
@@ -114,15 +115,18 @@ float EstablishStartLine(char *tokens[])
 	return ts;
 }
 
-void Run(const PORT port, float timeStamp, char *tokens[])
+static void Run(const PORT port, float timeStamp, char *tokens[])
 {
 	// Lap counters.
 	uint8_t numLaps = 0;
 	uint16_t hzCounter = 1;
 	// Lap data.
-	array<lap, 256> lapData;
+	std::array<lap, 256> lapData;
 	// Best lap time (lap #, time).
-	pair<uint8_t, float> bestTime(0, 0.0f);
+	std::pair<uint8_t, float> bestTime(0, 0.0f);
+
+	uint8_t ticToc = 0;
+	unsigned char clock[2] = { 47, 92 };
 
 	// Note timestamp of startline point.
 	lapData[numLaps].setStart(timeStamp);
@@ -132,18 +136,23 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 	{
 		if (!GetRMCSentence(port, tokens))
 		{
+
 #ifdef FILE_INPUT
 			if (error.GetError() == err::ID::FILE_EOF)
 				return;
 #endif
+
 			std::cout << error.GetDescription() << std::endl;
 			continue;
 		}
+		else
+			std::cout << clock[++ticToc & 0x01] << '\r';
 
 		// Previous position gps time stamp.
 		float prevTimeStamp = timeStamp;
+
 		// Confirm sentence is sequential.
-		timeStamp = atof(tokens[RMC_TIME]);
+		timeStamp = ConvertToSeconds(tokens[RMC_TIME]);
 		if (!Equal(timeStamp, prevTimeStamp + GPS_UPDATE_PERIOD) && !Equal(timeStamp, prevTimeStamp + 40.0f + GPS_UPDATE_PERIOD))
 		{
 			error.SetError(err::ID::TIME_STAMP);
@@ -155,11 +164,11 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 		if (tokens[RMC_LATITUDE] != nullptr || tokens[RMC_LONGITUDE] != nullptr)
 		{
 			char temp[12];
-      
+
 			GeoCopy(tokens[RMC_LATITUDE], temp, LATITUDE);
-			track.p1.x = atof(temp);
+			track.p1.x = atof_(temp);
 			GeoCopy(tokens[RMC_LONGITUDE], temp, LONGITUDE);
-			track.p1.y = atof(temp);
+			track.p1.y = atof_(temp);
 		}
 		else
 			continue;
@@ -168,6 +177,8 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 		if (hzCounter < GPS_UPDATE_FREQUENCY)
 		{
 			hzCounter++;
+
+
 			// Prepare for next iteration.
 			track.p0.x = track.p1.x;
 			track.p0.y = track.p1.y;
@@ -181,10 +192,12 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 
 			// Calculate track/start line intersection point.
 			IntersectPoint(track.p0, track.p1, &intersectPoint);
+
 			// Overall length of this track segment.
 			float totDist = Distance(track.p0, track.p1);
 			// Length from start line intersection point to track segment end point.
 			float segDist = Distance(intersectPoint, track.p1);
+
 			// Calculate startline crossing time for this and next lap.
 			float xTime = timeStamp - (GPS_UPDATE_PERIOD * (segDist / totDist));
 			lapData[numLaps].setStop(xTime);
@@ -200,7 +213,7 @@ void Run(const PORT port, float timeStamp, char *tokens[])
 			{
 				// Announce new fast lap.
 				std::cout << " << Fast Lap";
-				bestTime = make_pair(numLaps, lapData[numLaps].getTime());
+				bestTime = std::make_pair(numLaps, lapData[numLaps].getTime());
 			}
 			std::cout << "\n";
 
@@ -235,17 +248,21 @@ int main(void)
 	uint8_t led = 0;
 
 	// Open serial port.
-	port = OpenPort(COM_PORT);
+	port = OpenPort(comPort);
 	if (port == NULL)
 	{
-		std::cout << "FAILURE OPENING COM PORT " << COM_PORT << std::endl;
+		std::cout << "FAILURE OPENING COM PORT " << comPort << std::endl;
 		exit(-1);
 	}
+
+	//FlushInput(port);
 
 	//SetPortBaudRate(port, CBR_19200);
 
 	// Setup gps for proper sentence and refresh rate.
 	gpsSetup(port);
+
+	std::cout << "Waiting for GPS active status";
 
 	// Wait for valid gps fix.
 	do {
@@ -256,7 +273,7 @@ int main(void)
 #endif
 
 	// Establish startline.
-	std::cout << "GPS status valid, waiting keypress to establish startline.\n";
+	std::cout << "\nGPS status active!\nAwaiting keypress to establish startline.";
 	while (1)
 	{
 		if (GetRMCSentence(port, gpsTokens))
@@ -269,7 +286,10 @@ int main(void)
 #endif
 
 			{
+				std::cout << std::endl;
+
 				float ts = EstablishStartLine(gpsTokens);
+
 				if (ts != 0.0f)
 				{
 					Run(port, ts, gpsTokens);
