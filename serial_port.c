@@ -30,113 +30,113 @@ PORT OpenPort(unsigned portNumber)
 
 void ClosePort(PORT comPort) { CloseHandle(comPort); }
 
-int SetPortBaudRate(PORT comPort, int rate)
+int SetBaudRate(PORT comPort, int rate)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	
 	dcbSerialParams.BaudRate = rate;
-	Status = SetCommState(comPort, &dcbSerialParams);
-	return Status;
+	status = SetCommState(comPort, &dcbSerialParams);
+	return status;
 }
 
-int SetPortDataBits(PORT comPort, int bits)
+int SetDataBits(PORT comPort, int bits)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	
 	dcbSerialParams.ByteSize = bits;
-	Status = SetCommState(comPort, &dcbSerialParams);
-	return Status;
+	status = SetCommState(comPort, &dcbSerialParams);
+	return status;
 }
 
-int SetPortStopBits(PORT comPort, int bits)
+int SetStopBits(PORT comPort, int bits)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	
 	dcbSerialParams.StopBits = bits;
-	Status = SetCommState(comPort, &dcbSerialParams);
-	return Status;
+	status = SetCommState(comPort, &dcbSerialParams);
+	return status;
 }
 
-int SetPortParity(PORT comPort, int parity)
+int SetParity(PORT comPort, int parity)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return FALSE;
 	
 	dcbSerialParams.Parity = parity;
-	Status = SetCommState(comPort, &dcbSerialParams);
-	return Status;
+	status = SetCommState(comPort, &dcbSerialParams);
+	return status;
 }
 
-int GetPortBaudRate(PORT comPort)
+int GetBaudRate(PORT comPort)
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 	
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return -1;
 	
 	return dcbSerialParams.BaudRate;
 }
 
-int GetPortDataBits(PORT comPort) 
+int GetDataBits(PORT comPort) 
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return -1;
 	
 	return dcbSerialParams.ByteSize;
 }
 
-int GetPortStopBits(PORT comPort) 
+int GetStopBits(PORT comPort) 
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return -1;
 	
 	return dcbSerialParams.StopBits;
 }
 
-int GetPortParity(PORT comPort) 
+int GetParity(PORT comPort) 
 {
 	DCB dcbSerialParams = { 0 };
-	BOOL Status;
+	BOOL status;
 
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	Status = GetCommState(comPort, &dcbSerialParams);
-	if (Status == FALSE)
+	status = GetCommState(comPort, &dcbSerialParams);
+	if (status == FALSE)
 		return -1;
 
 	return dcbSerialParams.Parity;
@@ -144,11 +144,12 @@ int GetPortParity(PORT comPort)
 
 int SendData(PORT comPort, unsigned char* data, size_t size)
 {
-	DWORD  dNoOFBytestoWrite = size;
-	DWORD  dNoOfBytesWritten;
+	//uint32_t  dNoOFBytestoWrite = strlen(data);
+	uint32_t  dNoOFBytestoWrite = size;
+	uint32_t  dNoOfBytesWritten;
 	
-	BOOL Status = WriteFile(comPort, data, dNoOFBytestoWrite, &dNoOfBytesWritten, NULL);
-	if (Status == FALSE)
+	BOOL status = WriteFile(comPort, data, dNoOFBytestoWrite, &dNoOfBytesWritten, NULL);
+	if (status == FALSE)
 		return -1;
 
 	return dNoOfBytesWritten;
@@ -156,17 +157,39 @@ int SendData(PORT comPort, unsigned char* data, size_t size)
 
 int ReceiveData(PORT comPort, char* data, int len)
 {
-	DWORD dwEventMask;
-	DWORD NoBytesRead;
+	uint32_t dwEventMask;
+	uint32_t NoBytesRead;
 
-	BOOL Status = WaitCommEvent(comPort, &dwEventMask, NULL);
-	if (Status == FALSE) 
+	BOOL status = WaitCommEvent(comPort, &dwEventMask, NULL);
+	if (status == FALSE) 
 		return FALSE;
 	
-	Status = ReadFile(comPort, data, len, &NoBytesRead, NULL);
+	status = ReadFile(comPort, data, len, &NoBytesRead, NULL);
 	data[NoBytesRead] = 0;
-	if (Status == FALSE) 
+	if (status == FALSE) 
 		return FALSE;
 	
+	return TRUE;
+}
+
+int FlushInput(PORT comPort)
+{
+	uint32_t dwFlags = PURGE_RXCLEAR;
+
+	BOOL status = PurgeComm(comPort, dwFlags);
+	if (status == FALSE)
+		return FALSE;
+
+	return TRUE;
+}
+
+int FlushOutput(PORT comPort)
+{
+	uint32_t dwFlags = PURGE_TXCLEAR;
+
+	BOOL status = PurgeComm(comPort, dwFlags);
+	if (status == FALSE)
+		return FALSE;
+
 	return TRUE;
 }
