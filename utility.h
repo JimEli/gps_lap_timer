@@ -1,15 +1,136 @@
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
 
+#include <cstdio>
+#include <cctype>
 #include <cassert>
+#include <string.h>
+
+// strtok implementation which recognizes consecutive delimiters.
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// A very basic atof function (no exponentials).
+static float atof_(char s[])
+{
+	float val, power;
+	//int8_t i = 0, sign;
+	int8_t i = 0;
+
+	//for (; isspace(s[i]); i++); /* skip white space */
+	while (!isdigit(s[i]))
+		i++;
+
+	//sign = (s[i] == '-') ? -1 : 1;
+	//if (s[i] == '+' || s[i] == '-') i++;
+
+	for (val = 0.0; isdigit(s[i]); i++)
+		val = 10.0 * val + (s[i] - '0');
+
+	if (s[i] == '.')
+		i++;
+
+	for (power = 1.0; isdigit(s[i]); i++)
+	{
+		val = 10.0 * val + (s[i] - '0');
+		power *= 10.0;
+	}
+
+	//return sign * val / power;
+	return val / power;
+}
+
+static char* strtok_(char* str, const char* delim)
+{
+	static char* staticStr = 0;          // Stores last address.
+	int i = 0, strLen = 0, delimLen = 0; // Indexes.
+
+	// If delimiter is NULL or no more chars remaining.
+	if (delim == 0 || (str == 0 && staticStr == 0))
+		return 0;
+
+	if (str == 0)
+		str = staticStr;
+
+	// Get length of string and delimiter.
+	while (str[strLen])
+		strLen++;
+	while (delim[delimLen])
+		delimLen++;
+
+	// Find a delimiter.
+	char* p = strpbrk(str, delim);
+	if (p)
+		i = p - str;
+	else
+	{
+		// If no delimiters, return str.
+		staticStr = 0;
+		return str;
+	}
+
+	// Terminate the string.
+	str[i] = '\0';
+
+	// Save remaining string.
+	if ((str + i + 1) != 0)
+		staticStr = (str + i + 1);
+	else
+		staticStr = 0;
+
+	return str;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+// Convert hex string to decimal.
+static char hex(const char ch)
+{
+	if (ch >= '0' && ch <= '9')
+		return ch - '0';
+	if (ch >= 'a' && ch <= 'f')
+		return ch - 'a' + 10;
+
+	return 0;
+}
+
+template<typename T>
+static T htoi(const char* hexStr)
+{
+	T value = T{ 0 };
+
+	if (hexStr != nullptr)
+		for (size_t i = 0; i < sizeof(T) * 2; ++i)
+			value |= hex(tolower(hexStr[i])) << (8 * sizeof(T) - 4 * (i + 1));
+
+	return value;
+};
+
+static float ConvertToSeconds(char* time)
+{
+	if (time == nullptr)
+		return 0.0f;
+
+	float ft = atof_(time);
+	
+	uint16_t hm = (uint16_t)(ft / 100);
+	uint16_t hours = (uint16_t)(ft / 10000);
+	uint16_t minutes = (hm - (hours * 100) + (hours * 60));
+	float seconds = ft - (hm * 100) + (minutes * 60);
+
+	return seconds;
+}
 
 // Determine if floats are relatively equal.
-bool Equal(float a, float b) { return fabs(a - b) <= FLT_EPSILON; }
+static bool Equal(float a, float b) { return fabs(a - b) <= FLT_EPSILON; }
 
 // Check heading and angle within 30 degrees.
-bool Within30(uint16_t a, uint16_t h) { return ((360 - abs(a - h) % 360 < 30) || (abs(a - h) % 360 < 30)); }
+static bool Within30(const uint16_t a, const uint16_t h) { return ((360 - abs(a - h) % 360 < 30) || (abs(a - h) % 360 < 30)); }
 
-float Distance(const point_t t1, const point_t t2)
+static float Distance(const point_t t1, const point_t t2)
 {
 	float Lat1, Long1, Lat2, Long2;		// Coordinates in degrees.
 	float dlat, dlon;					// Change in location.
@@ -44,7 +165,7 @@ float Distance(const point_t t1, const point_t t2)
 }
 
 // Construct a startline.
-void StartLine(const float sx, const float sy, const float shdg)
+static void StartLine(const float sx, const float sy, const float shdg)
 {
 	float tx, ty; // Projected track coordinates.
 	float m, b;   // Slope & y intercept.
@@ -70,7 +191,7 @@ void StartLine(const float sx, const float sy, const float shdg)
 }
 
 // 2d line intersection.
-bool LineIntersection(const line_t track)
+static bool LineIntersection(const line_t track)
 {
 	float z;
 	int16_t s1, s2, s3, s4;
@@ -119,7 +240,7 @@ bool LineIntersection(const line_t track)
 }
 
 // 2d lines point of intersection.
-void IntersectPoint(point_t p1, point_t p2, point_t* i)
+static void IntersectPoint(const point_t p1, const point_t p2, point_t* i)
 {
 	float denom, numera, mua; //numerb, mub;
 
@@ -135,7 +256,7 @@ void IntersectPoint(point_t p1, point_t p2, point_t* i)
 }
 
 // Copy lat/long strings and format as ddd.dddd
-void GeoCopy(char* s, char* d, unsigned char value)
+static void GeoCopy(const char* s, char* d, const unsigned char value)
 {
 	assert(s != nullptr);
 	assert(d != nullptr);
