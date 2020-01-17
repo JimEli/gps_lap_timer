@@ -5,10 +5,8 @@
 #include <stdio.h>
 #include "gps_timer.h"
 #include "serial_port.h"
-#include "strtok.h"
-#include "htoi.h"
 
-bool Checksum(char* sentence)
+static bool Checksum(char* sentence)
 {
 	assert(sentence != nullptr);
 
@@ -23,7 +21,7 @@ bool Checksum(char* sentence)
 }
 
 // Parse gps string.
-size_t ParseRMC(char* sentence, char* tokens[])
+static size_t ParseRMC(char* sentence, char* tokens[])
 {
 	assert(sentence != nullptr);
 
@@ -36,7 +34,7 @@ size_t ParseRMC(char* sentence, char* tokens[])
 	return n;
 }
 
-bool GetRMCSentence(PORT port, char* tokens[])
+static bool GetRMCSentence(PORT port, char* tokens[])
 {
 	error.Clear();
 
@@ -51,7 +49,7 @@ bool GetRMCSentence(PORT port, char* tokens[])
 #else
 	// Read data from serial port.
 	ReceiveData(port, buffer, GPS_STRING_LENGTH - 1);
-
+	
 #endif
 
 	// RMC sentence?
@@ -65,6 +63,7 @@ bool GetRMCSentence(PORT port, char* tokens[])
 #else
 			buffer[eol - buffer - 1] = 0;
 #endif
+
 		// Confirm crc.
 		if (!Checksum(buffer))
 		{
@@ -107,14 +106,19 @@ bool GetRMCSentence(PORT port, char* tokens[])
 // Can also disable/enable NMEA sentences with a text command: 
 // $PUBX,40,GLL,1,0,0,0,0,0*5D enables the GLL sentence on the serial port.
 // $PUBX,41,1,0007,0003,19200,0*25 sets the GPS modules baud rate to 19200.
-array<unsigned char, 14> gpsUpdateRate = { 0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0xC8, 0x00, 0x01, 0x00, 0x01, 0x00, 0xDE, 0x6A }; // 5Hz update rate.
-array<unsigned char, 16> gpsDisableGGA = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x24 }; // GxGGA off
-array<unsigned char, 16> gpsDisableGGL = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x2B }; // GxGLL off
-array<unsigned char, 16> gpsDisableGSA = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x32 }; // GxGSA off
-array<unsigned char, 16> gpsDisableGSV = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x39 }; // GxGSV off
-array<unsigned char, 16> gpsDisableVTG = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05, 0x47 }; // GxVTG off
+//const char baud19200[] = "$PUBX,41,1,0007,0003,19200,0*25";
+//const char baud9600[] = "PUBX,41,1,3,3,9600,0";
+//const char baud38400[] = "PUBX,41,1,3,3,38400,0";
 
-void gpsSetup(PORT p)
+std::array<unsigned char, 14> gpsUpdateRate = { 0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0xC8, 0x00, 0x01, 0x00, 0x01, 0x00, 0xDE, 0x6A }; // 5Hz update rate.
+std::array<unsigned char, 16> gpsDisableGGA = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x24 }; // GxGGA off
+std::array<unsigned char, 16> gpsDisableGGL = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x2B }; // GxGLL off
+std::array<unsigned char, 16> gpsDisableGSA = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x32 }; // GxGSA off
+std::array<unsigned char, 16> gpsDisableGSV = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x39 }; // GxGSV off
+std::array<unsigned char, 16> gpsDisableVTG = { 0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05, 0x47 }; // GxVTG off
+std::array<unsigned char, 32> gpsBaud19200 = { "$PUBX,41,1,0007,0003,19200,0*25" }; // 19200 baud rate
+
+static void gpsSetup(const PORT p)
 {
 	assert(p != NULL);
 
@@ -124,6 +128,7 @@ void gpsSetup(PORT p)
 	SendData(p, &gpsDisableGSV[0], gpsDisableGSV.size()); // Disable GSV.
 	SendData(p, &gpsDisableVTG[0], gpsDisableVTG.size()); // Disable VTG.
 	SendData(p, &gpsUpdateRate[0], gpsUpdateRate.size()); // Set update rate at 5Hz.
+	//SendData(p, &gpsBaud19200[0], gpsBaud19200.size()); // Set 19200 baud rate.
 }
 
 #endif
