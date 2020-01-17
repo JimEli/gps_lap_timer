@@ -1,4 +1,4 @@
-// Lap timer header file.
+// lap timer header file.
 #ifndef _LAP_TIMER_H_
 #define _LAP_TIMER_H_
 
@@ -30,7 +30,7 @@
 #define LONGITUDE                     0x02
 
 // Maximum possible characters in a GPS string (+ fudge).
-const std::size_t GPS_STRING_LENGTH = 96;
+const std::size_t GPS_STRING_LENGTH = 80;
 
 // Gps update frequency and period.
 const std::size_t GPS_UPDATE_FREQUENCY = 5; // Hz.
@@ -46,61 +46,60 @@ static constexpr float LINE_WIDTH_2{ 25.0f };
 static constexpr float PROJECTION_DISTANCE{ 100.0f };
 
 // Serial port with gps device connected (see device manager).
-constexpr int COM_PORT{ 5 };
+constexpr int comPort{ 5 };
 // Serial/file input buffer.
 char buffer[GPS_STRING_LENGTH];
 
 // Lap time class.
 struct lap
 {
-	void setStart(const float ts) 
+	void setStart(const float t) 
 	{
-		assert(ts >= 0.0f);
-		start = toSeconds(ts);
+		assert(t >= 0.0f);
+		start = t;
 	}
 
-	void setStop(const float ts) 
+	void setStop(const float t) 
 	{ 
-		assert(ts >= 0.0f);
-		stop = toSeconds(ts);
+		assert(t >= 0.0f);
+		stop = t;
 	}
-	
-	float getStart() const { return toTimeStamp(start); }
-	float getStop() const { return toTimeStamp(stop); }
+
+	float getStart() const { return start; }
+	float getStop() const { return stop; }
 	
 	float getTime() const 
 	{
 		if (stop < start)
 			return 0.0f;
-		
+
 		return (stop - start);
 	}
 
 private:
-	static float toSeconds(float t)
+	static float toTimeStamp(float seconds)
 	{
-		int hm = t / 100;
-		int h = t / 10000;
-		int m = hm - (h * 100) + (h * 60);
-		float s = t - (hm * 100) + (m * 60);
+		uint16_t hours = (uint16_t)(seconds / 3600);
+		uint16_t minutes = (uint16_t)(seconds / 60 - (hours * 60));
+		float fs = seconds - (uint16_t)(seconds / 100) * 100;
+		float timestamp = (((hours * 100) + minutes) * 100) + fs;
 
-		return s;
+		return timestamp;
 	}
 
-	static float toTimeStamp(float s)
+	static float toSeconds(float time)
 	{
-		int h = s / 3600;
-		int m = s / 60 - (h * 60);
-		float fs = s - (int)(s / 100) * 100;
-		float ts = (((h * 100) + m) * 100) + fs;
-		
-		return ts;
+		uint16_t hm = (uint16_t)(time / 100);
+		uint16_t hours = (uint16_t)(time / 10000);
+		uint16_t minutes = (hm - (hours * 100) + (hours * 60));
+		float seconds = time - (hm * 100) + (minutes * 60);
+
+		return seconds;
 	}
 
 	float start;
 	float stop;
 };
-
 
 struct point_t { float x, y; };
 struct line_t { point_t p0, p1; };
@@ -114,8 +113,10 @@ uint16_t startHeading;
 // Coordinates of current & previous GPS location.
 line_t track;
 
-static const char* description[] = { "NO ERROR", "CHECKSUM FAILURE", "INVALID SENTENCE", "NO FIX", "NON-SEQUENTIAL SENTENCE", "END OF FILE" };
+// Error descriptions.
+static const char* description[] = { "NO ERROR",  "CHECKSUM FAILURE", "INVALID SENTENCE", "NO FIX", "NON-SEQUENTIAL SENTENCE", "END OF FILE" };
 
+// Simplistic error tracker.
 struct err
 {
 	enum ID : size_t { NONE = 0, CHECKSUM, BAD_SENTENCE, NO_FIX, TIME_STAMP, FILE_EOF };
@@ -124,11 +125,9 @@ struct err
 	void SetError(const ID id) { error_ = id; }
 	ID GetError() const { return error_; }
 	const char* GetDescription() const { return description[error_]; }
-	//const char* GetDescription() { return static_cast<const char*>(description[error_]); }
 
 private:
 	ID error_;
-	//static constexpr const char* description[] = { "NO ERROR", "INVALID SENTENCE", "CHECKSUM FAILURE", "NO FIX" "NON-SEQUENTIAL SENTENCE, "END OF FILE" };
 };
 
 // Gps errors.
@@ -137,7 +136,7 @@ err error;
 #define FILE_INPUT
 
 #ifdef FILE_INPUT
-const char* filePath = "pir2.txt";
+const char* filePath = "data.txt";
 FILE* file = NULL;
 bool FILE_INPUT_EOF = false;
 PORT port = nullptr;
