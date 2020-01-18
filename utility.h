@@ -6,24 +6,18 @@
 #include <cassert>
 #include <string.h>
 
-// strtok implementation which recognizes consecutive delimiters.
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// A very basic atof function (no exponentials).
+// A very basic atof function (no exponentials, no sign).
 static float atof_(char s[])
 {
 	float val, power;
-	//int8_t i = 0, sign;
 	int8_t i = 0;
 
-	//for (; isspace(s[i]); i++); /* skip white space */
 	while (!isdigit(s[i]))
 		i++;
-
-	//sign = (s[i] == '-') ? -1 : 1;
-	//if (s[i] == '+' || s[i] == '-') i++;
 
 	for (val = 0.0; isdigit(s[i]); i++)
 		val = 10.0 * val + (s[i] - '0');
@@ -37,10 +31,10 @@ static float atof_(char s[])
 		power *= 10.0;
 	}
 
-	//return sign * val / power;
 	return val / power;
 }
 
+// strtok implementation which recognizes consecutive delimiters.
 static char* strtok_(char* str, const char* delim)
 {
 	static char* staticStr = 0;          // Stores last address.
@@ -133,24 +127,24 @@ static bool Within30(const uint16_t a, const uint16_t h) { return ((360 - abs(a 
 static float Distance(const point_t t1, const point_t t2)
 {
 	float Lat1, Long1, Lat2, Long2;		// Coordinates in degrees.
-	float dlat, dlon;					// Change in location.
+	float dlat, dlon;			// Change in location.
 	float a, d;
-	float c;							// Great Circle distance (radians).
+	float c;				// Great Circle distance (radians).
 
 	Lat1 = (float)((uint32_t)(t1.y / 100.0f));
-	Lat1 = (float)(Lat1 + (t1.y - Lat1 * 100) / 60.0f);
+	Lat1 = (float)(Lat1 + (t1.y - Lat1 * 100.0f) / 60.0f);
 	Lat1 = (float)(Lat1 * D_TO_RADIANS);
 
 	Long1 = (float)((uint32_t)(t1.x / 100.0f));
-	Long1 = (float)(Long1 + (t1.x - Long1 * 100) / 60.0f);
+	Long1 = (float)(Long1 + (t1.x - Long1 * 100.0f) / 60.0f);
 	Long1 = (float)(Long1 * D_TO_RADIANS);
 
 	Lat2 = (float)((uint32_t)(t2.y / 100.0f));
-	Lat2 = (float)(Lat2 + (t2.y - Lat2 * 100) / 60.0f);
+	Lat2 = (float)(Lat2 + (t2.y - Lat2 * 100.0f) / 60.0f);
 	Lat2 = (float)(Lat2 * D_TO_RADIANS);
 
-	Long2 = (float)((uint32_t)(t2.x / 100.0f));
-	Long2 = (float)(Long2 + (t2.x - Long2 * 100) / 60.0f);
+Long2 = (float)((uint32_t)(t2.x / 100.0f));
+	Long2 = (float)(Long2 + (t2.x - Long2 * 100.0f) / 60.0f);
 	Long2 = (float)(Long2 * D_TO_RADIANS);
 
 	dlat = Lat2 - Lat1;
