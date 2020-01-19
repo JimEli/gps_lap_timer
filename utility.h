@@ -19,16 +19,16 @@ static float atof_(char s[])
 	while (!isdigit(s[i]))
 		i++;
 
-	for (val = 0.0; isdigit(s[i]); i++)
-		val = 10.0 * val + (s[i] - '0');
+	for (val = 0.0f; isdigit(s[i]); i++)
+		val = 10.0f * val + (s[i] - '0');
 
 	if (s[i] == '.')
 		i++;
 
-	for (power = 1.0; isdigit(s[i]); i++)
+	for (power = 1.0f; isdigit(s[i]); i++)
 	{
-		val = 10.0 * val + (s[i] - '0');
-		power *= 10.0;
+		val = 10.0f * val + (s[i] - '0');
+		power *= 10.0f;
 	}
 
 	return val / power;
