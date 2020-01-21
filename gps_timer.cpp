@@ -158,7 +158,7 @@ static void Run(const PORT port, float timeStamp, char *tokens[])
 
 		// Confirm sentence is sequential.
 		timeStamp = ConvertToSeconds(tokens[RMC_TIME]);
-		if (!Equal(timeStamp, prevTimeStamp + GPS_UPDATE_PERIOD) && !Equal(timeStamp, prevTimeStamp + 40.0f + GPS_UPDATE_PERIOD))
+		if (!Equal(timeStamp, prevTimeStamp + GPS_UPDATE_PERIOD))
 		{
 			error.SetError(err::ID::TIME_STAMP);
 			std::cout << error.GetDescription() << std::endl;
