@@ -143,7 +143,7 @@ static float Distance(const point_t t1, const point_t t2)
 	Lat2 = (float)(Lat2 + (t2.y - Lat2 * 100.0f) / 60.0f);
 	Lat2 = (float)(Lat2 * D_TO_RADIANS);
 
-Long2 = (float)((uint32_t)(t2.x / 100.0f));
+	Long2 = (float)((uint32_t)(t2.x / 100.0f));
 	Long2 = (float)(Long2 + (t2.x - Long2 * 100.0f) / 60.0f);
 	Long2 = (float)(Long2 * D_TO_RADIANS);
 
@@ -252,8 +252,7 @@ static void IntersectPoint(const point_t p1, const point_t p2, point_t* i)
 // Copy lat/long strings and format as ddd.dddd
 static void GeoCopy(const char* s, char* d, const unsigned char value)
 {
-	assert(s != nullptr);
-	assert(d != nullptr);
+	assert(s != nullptr && d != nullptr);
 
 	int i = 0;
 
