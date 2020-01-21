@@ -13,6 +13,9 @@
 * purposes (FILE_INPUT). The final version of this program is intended to run 
 * on an Arduino based uC device.
 *
+* The following is an example NMEA RMC sentence:
+*   $GPRMC,220131.60,A,3203.55750,N,11041.03710,W,0.078,,030120,,,A*68
+*
 * Notes:
 *  (1) Compiled with MS Visual Studio 2017 Community (v141).
 *************************************************************************
