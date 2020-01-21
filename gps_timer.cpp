@@ -54,11 +54,10 @@ static void Prepend(char* d, const char* s)
 static void DisplayTime(const uint8_t n, const float ft) 
 {
 	assert(ft > 0.);
-	assert(n >= 0);
 
 	char s1[16];
 
-	memset(s1, 0, 16);
+	memset(&s1[10], 0, 6);
 	uint16_t m = (uint16_t)ft / 60;
 	float fs = ft - (m * 60);
 	sprintf(s1, "%.02d:%05.2f ", m, fs);
@@ -92,7 +91,7 @@ static float EstablishStartLine(char *tokens[])
 #else
 
 	if (tokens[RMC_TIME] == nullptr || tokens[RMC_TRACK] == nullptr ||
-		tokens[RMC_LATITUDE] == nullptr || tokens[RMC_LONGITUDE] == nullptr)
+	    tokens[RMC_LATITUDE] == nullptr || tokens[RMC_LONGITUDE] == nullptr)
 		return 0.0f;
 
 	// Position timestamp.
