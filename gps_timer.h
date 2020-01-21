@@ -29,9 +29,6 @@
 #define LATITUDE                      0x01
 #define LONGITUDE                     0x02
 
-// Maximum possible characters in a GPS string (+ fudge).
-const std::size_t GPS_STRING_LENGTH = 80;
-
 // Gps update frequency and period.
 const std::size_t GPS_UPDATE_FREQUENCY = 5; // Hz.
 static constexpr float GPS_UPDATE_PERIOD{ 1.0f/GPS_UPDATE_FREQUENCY };
@@ -47,6 +44,9 @@ static constexpr float PROJECTION_DISTANCE{ 100.0f };
 
 // Serial port with gps device connected (see device manager).
 constexpr int comPort{ 5 };
+
+// Maximum possible characters in a GPS string (+ fudge).
+const std::size_t GPS_STRING_LENGTH = 80;
 // Serial/file input buffer.
 char buffer[GPS_STRING_LENGTH];
 
