@@ -39,7 +39,7 @@
 #include "gps.h"         // gps specific functions.
 #include <conio.h>       // _kbhit, _getchar.
 
-// Prepends s onto d. Assumes s\d has enough space allocated for the combined string.
+// Prepends s onto d. Assumes d has enough space allocated for the combined string.
 static void Prepend(char* d, const char* s)
 {
 	assert(s != nullptr && d != nullptr);
@@ -79,6 +79,7 @@ static float EstablishStartLine(char *tokens[])
 	float ts;
 
 #ifdef FILE_INPUT
+	
 	// Safeway parking lot: $GPRMC,194924.80,A,3203.02116,N,11042.41425,W,1.304,30.95,120120,,,A*48
 	startPoint.x = 32.0302116;
 	startPoint.y = 110.4241425;
@@ -140,8 +141,10 @@ static void Run(const PORT port, float timeStamp, char *tokens[])
 		{
 
 #ifdef FILE_INPUT
+			
 			if (error.GetError() == err::ID::FILE_EOF)
 				return;
+
 #endif
 
 			std::cout << error.GetDescription() << std::endl;
@@ -302,12 +305,16 @@ int main(void)
 	}
 
 #ifdef FILE_INPUT
+	
 	// Close file.
 	if (file)
 		fclose(file);
+
 #else
+
 	// Close serial port.
 	ClosePort(port);
+
 #endif
 
 	return 0;
