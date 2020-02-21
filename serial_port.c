@@ -1,13 +1,17 @@
+// Basic serial posrt communication routines.
+// Follows information found here:
+// https://docs.microsoft.com/en-us/previous-versions/ff802693(v=msdn.10)?redirectedfrom=MSDN
+
 #include "serial_port.h"
 
 PORT OpenPort(unsigned portNumber)
 {
 	HANDLE hComm;
-	TCHAR comname[100];
-	wsprintf(comname, TEXT("\\\\.\\COM%d"), portNumber);
+	TCHAR comName[100];
+	wsprintf(comName, TEXT("\\\\.\\COM%d"), portNumber);
 
 	// Port name, read/write, no sharing, no security, open existing port only, non-overlapped I/O, Null for Comm devices.
-	hComm = CreateFile(comname, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	hComm = CreateFile(comName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hComm == INVALID_HANDLE_VALUE)
 		return NULL;
