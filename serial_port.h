@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-typedef HANDLE PORT;
+typedef HANDLE PORT; //typedef void* PORT;
 
 // Open comm serial port specified by idx.
 // Returns a handle to the opend port, on error returns NULL.
