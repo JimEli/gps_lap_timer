@@ -15,10 +15,10 @@ extern "C" {
 typedef HANDLE PORT; //typedef void* PORT;
 
 // Open comm serial port specified by idx.
-// Returns a handle to the opend port, on error returns NULL.
+// Returns a handle to the opened port, on error returns NULL.
 PORT OpenPort(unsigned portNumber);
 
-// Close the handle of the opend port.
+// Close the handle of the opened port.
 void ClosePort(PORT comPort);
 
 // Set the baud rate of the specified comPort.
