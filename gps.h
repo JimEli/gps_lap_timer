@@ -13,7 +13,7 @@ static bool Checksum(char* sentence)
 	uint8_t crc = 0;
 	uint8_t n = htoi<uint8_t>(&sentence[strlen(sentence) - 2]);
 
-	// Skip initial '$' and last 2 bytes (crc) + '*'.
+	// Skip initial '$' and '*' + last 2 bytes (crc).
 	for (size_t i = 1; i < strlen(sentence) - 3; i++)
 		crc ^= sentence[i];
 
